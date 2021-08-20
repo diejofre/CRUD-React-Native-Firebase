@@ -10,13 +10,13 @@ import {
 import firebase from "../database/firebase";
 
 const UserDetailScreen = (props) => {
-  const [user, setUser] = useState({
+  const [initialState, setInitialState] = useState({
     id: "",
     name: "",
     email: "",
     phone: "",
   });
-
+  const [user, setUser] = useState(initialState);
   const [loading, setLoading] = useState(true);
 
   const getUserById = async (id) => {
@@ -38,8 +38,21 @@ const UserDetailScreen = (props) => {
     setUser({ ...user, [name]: value });
   };
 
+  const updateUser = async () => {
+    const dbRef = firebase.db.collection("users").doc(user.id);
+    await dbRef.set({
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+    });
+    setUser(initialState);
+    props.navigation.navigate("UsersList");
+  };
+
   const deleteUser = async () => {
-    const dbRef = firebase.db.collection("users").doc(props.route.params.userId);
+    const dbRef = firebase.db
+      .collection("users")
+      .doc(props.route.params.userId);
     await dbRef.delete();
     props.navigation.navigate("UsersList");
   };
@@ -79,7 +92,7 @@ const UserDetailScreen = (props) => {
         <Button
           color="#19AC52"
           title="Update User"
-          onPress={() => alert("works")}
+          onPress={() => updateUser()}
         />
       </View>
       <View>
